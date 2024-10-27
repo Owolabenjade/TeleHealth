@@ -1,68 +1,107 @@
-**Use Case: Remote Healthcare Access for Rural Communities**
+# Decentralized Telemedicine and Prescription Management Platform
 
-Maria lives in a remote village where the nearest healthcare facility is over 100 miles away. Access to medical professionals is limited, and obtaining timely consultations is challenging. Additionally, managing prescriptions involves lengthy trips to distant pharmacies, making it difficult for residents to receive necessary medications promptly.
+This Clarity smart contract enables secure telemedicine consultations, prescription issuance, and patient data management on a decentralized blockchain platform. It supports distinct roles for patients, doctors, and pharmacies, manages consultation and prescription records, and facilitates secure, token-based payments, all while enforcing role-based access controls and data privacy.
 
-**Application of the Decentralized Telemedicine and Prescription Management Platform:**
+## Features
 
-1. **Patient Initiates a Secure Consultation:**
+- **Role-based Access Control:** Three primary roles (Patient, Doctor, Pharmacy) to enable secure, role-based actions.
+- **Consultations & Prescriptions:** Secure consultation scheduling, note-taking, and prescription issuance and dispensing.
+- **Data Management:** Off-chain patient medical records are managed with secure access control.
+- **Token-Based Payments:** Integration with SIP-010 fungible token standard for transaction-based payments.
+- **Rate-Limiting:** Limits the number of consultations per doctor to reduce spam or abuse.
 
-   - **Scheduling:** Maria uses the platform's user-friendly mobile application to schedule a virtual appointment with a licensed doctor specializing in her medical needs.
-   - **Authentication:** She logs in using a secure, blockchain-backed identity verification process, ensuring her data remains confidential.
-   - **Encrypted Communication:** The platform sets up an end-to-end encrypted video call, protecting the privacy of the consultation.
+## Roles
 
-2. **Conducting the Virtual Consultation:**
+1. **Patient:** Can schedule consultations, manage access to their medical records, and select pharmacies for prescriptions.
+2. **Doctor:** Authorized to conduct consultations, record notes, and issue prescriptions.
+3. **Pharmacy:** Dispenses prescribed medication after validation.
 
-   - **Medical History Access:** With Maria's permission, the doctor accesses her medical records stored securely on the blockchain.
-   - **Diagnosis and Advice:** The doctor conducts a thorough examination via video call, discusses symptoms, and provides medical advice.
-   - **Data Security:** All consultation details are securely recorded on the blockchain, accessible only to Maria and authorized healthcare providers.
+## Data Structures
 
-3. **Issuance of a Smart Contract-Based Prescription:**
+- **Users:** Stores user roles and public keys for patients, doctors, and pharmacies.
+- **Medical Records:** Off-chain references for patient records (e.g., hashes of data).
+- **Consultations:** Stores consultation details between patients and doctors.
+- **Prescriptions:** Tracks prescriptions issued by doctors, selected pharmacies, and dispensing status.
+- **Access Control:** Patient-granted access to their medical records.
+- **Payments:** Logs transaction records between participants using SIP-010 tokens.
 
-   - **Digital Prescription Creation:** Post-consultation, the doctor issues a digital prescription encoded within a Clarity smart contract.
-   - **Immutable Record:** The prescription is timestamped and recorded on the blockchain, ensuring it cannot be altered or forged.
-   - **Patient Control:** Maria has the authority to grant access to this prescription to the pharmacy of her choice.
+## Public Functions
 
-4. **Pharmacy Verification and Medication Dispensation:**
+### User Registration
 
-   - **Pharmacy Selection:** Maria selects a participating local pharmacy through the platform.
-   - **Access Granting:** She grants the pharmacy permission to view the prescription.
-   - **Verification:** The pharmacist verifies the prescription's authenticity on the blockchain.
-   - **Medication Dispensation:** The pharmacy dispenses the medication, confident in the prescription's validity.
+- `register(role, public-key)`: Registers a user with a specific role and public key.
+- **Roles:** `patient`, `doctor`, `pharmacy`.
 
-5. **Payment Processing via Smart Contracts:**
+### Consultation & Prescription Management
 
-   - **Automatic Billing:** Smart contracts handle the payment for both the consultation and the medication.
-   - **Multiple Payment Options:** Maria pays using her preferred method, including options like cryptocurrency, credit card, or digital wallets.
-   - **Transparent Transactions:** All financial transactions are recorded on the blockchain, providing transparency and reducing the risk of fraud.
+- `schedule-consultation(doctor)`: Patient schedules a consultation with a doctor.
+- `record-consultation-notes(consultation-id, notes-hash)`: Doctor records notes for a consultation.
+- `issue-prescription(patient, medication, quantity)`: Doctor issues a prescription for the patient.
+- `select-pharmacy(prescription-id, pharmacy)`: Patient selects a pharmacy to dispense their prescription.
+- `dispense-medication(prescription-id)`: Pharmacy dispenses prescribed medication to the patient.
 
-6. **Data Access and Privacy Control:**
+### Access Control
 
-   - **Personal Data Management:** Maria controls who has access to her medical records and for how long.
-   - **Revocation Rights:** She can revoke access at any time, ensuring ongoing privacy.
-   - **Audit Trail:** Every access and modification is logged, providing a clear audit trail for security and compliance purposes.
+- `grant-access(grantee)`: Patient grants access to their medical records to an authorized user.
+- `revoke-access(grantee)`: Patient revokes access to their medical records.
 
-**Benefits Realized:**
+### Payment
 
-- **For Maria (Patient):**
-  - **Improved Accessibility:** Gains immediate access to medical care without traveling long distances.
-  - **Enhanced Security:** Her sensitive health information is protected through robust blockchain encryption.
-  - **Convenience:** Manages consultations, prescriptions, and payments all within one integrated platform.
+- `make-payment(ft, amount, recipient)`: Facilitates token-based payments between users.
 
-- **For Doctors:**
-  - **Expanded Reach:** Can provide services to patients in underserved areas.
-  - **Efficient Record-Keeping:** Access accurate patient records securely, improving the quality of care.
-  - **Guaranteed Payment:** Receives prompt payment through automated smart contract processes.
+### Data Management
 
-- **For Pharmacies:**
-  - **Authentic Prescriptions:** Confidently verify prescriptions' legitimacy, reducing the risk of dispensing errors.
-  - **Streamlined Operations:** Simplifies the medication dispensing process with secure access to digital prescriptions.
-  - **Customer Trust:** Builds trust with customers through participation in a secure and transparent system.
+- `update-medical-record(data-hash)`: Patient updates their off-chain medical record reference.
+- `get-medical-record(patient)`: Authorized users retrieve a patient’s medical record.
 
-**Overall Impact:**
+## Error Codes
 
-- **Healthcare Accessibility:** The platform bridges the gap between patients and healthcare providers, especially in remote or underserved regions.
-- **Data Security and Compliance:** By leveraging blockchain technology, the platform ensures compliance with data protection regulations like HIPAA.
-- **Process Efficiency:** Automates administrative tasks, reduces errors associated with paper prescriptions, and accelerates the delivery of medical services.
-- **Patient Empowerment:** Empowers individuals to take control of their healthcare journey, from consultations to managing who accesses their medical information.
+- **ERR-NOT-AUTHORIZED (100):** Unauthorized action by the user.
+- **ERR-NOT-FOUND (101):** Resource not found.
+- **ERR-ALREADY-EXISTS (102):** Entity already exists.
+- **ERR-PERMISSION-DENIED (103):** Access denied to the resource.
+- **ERR-INVALID-ROLE (104):** Invalid user role.
+- **ERR-INVALID-INPUT (105):** Invalid function input.
+- **ERR-OPERATION-FAILED (106):** Generic operation failure.
+- **ERR-NOT-PATIENT (107):** User is not a registered patient.
+- **ERR-NOT-DOCTOR (108):** User is not a registered doctor.
+- **ERR-NOT-PHARMACY (109):** User is not a registered pharmacy.
+- **ERR-RATE-LIMIT (111):** Rate limit reached.
+- **ERR-EXPIRED (112):** Prescription or consultation expired.
 
-This use case demonstrates how the decentralized telemedicine and prescription management platform can transform healthcare delivery. By connecting patients like Maria with medical professionals securely and efficiently, it addresses critical challenges in accessibility, security, and efficiency. The platform not only improves individual patient outcomes but also contributes to a more equitable and effective healthcare system.
+## Installation
+
+1. Deploy the smart contract to a Clarity-compatible blockchain.
+2. Configure the fungible token contract as `payment-token-contract` for handling payments.
+
+## Usage Example
+
+### Scenario: Patient Scheduling a Consultation and Filling a Prescription
+
+1. **Registration:**
+   - A patient, doctor, and pharmacy each call `register(role, public-key)` with their respective roles.
+   
+2. **Scheduling a Consultation:**
+   - The patient calls `schedule-consultation(doctor)` to schedule a consultation with a registered doctor. A consultation ID is returned.
+   
+3. **Recording Consultation Notes:**
+   - After the consultation, the doctor records notes by calling `record-consultation-notes(consultation-id, notes-hash)`.
+   
+4. **Issuing a Prescription:**
+   - The doctor issues a prescription by calling `issue-prescription(patient, medication, quantity)`.
+   
+5. **Selecting a Pharmacy:**
+   - The patient calls `select-pharmacy(prescription-id, pharmacy)` to assign a pharmacy to the prescription.
+   
+6. **Dispensing Medication:**
+   - The pharmacy calls `dispense-medication(prescription-id)` to confirm dispensing the medication.
+
+7. **Payment:**
+   - The patient makes a payment using `make-payment(ft, amount, recipient)` with the SIP-010 token.
+
+## Security Measures
+
+- **Role Validation:** Functions require the correct user role to execute specific actions, preventing unauthorized access.
+- **Access Control:** Only authorized entities (as set by the patient) can access medical records.
+- **Rate-Limiting:** Limits the number of consultations per doctor to prevent spam.
+- **Error Handling:** Detailed error codes help diagnose issues, preventing unchecked execution paths.
